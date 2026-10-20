@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if page_mode == 'login' %}Log in
+        {% elif page_mode == 'register' %}Create account
+        {% elif page_mode == 'profile' %}My Profile
+        {% elif page_mode == 'item_edit' %}Edit report
+        {% elif page_mode == 'comment_edit' %}Edit comment
+        {% else %}Report a lost item{% endif %} | Lost &amp; Found
+    </title>
+    <link rel="stylesheet" href="{% static 'MyApp/style.css' %}">
+</head>
+<body>
+    <main class="page">
+        <div class="form-shell">
+            <nav class="site-nav">
+                <a href="{% url 'item_list' %}">Browse Reports</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}">My Reports</a>
+                    <a href="{% url 'profile' %}">My Profile</a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="text-button">Log out</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Log in</a>
+                    <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </nav>
+
+            <section class="header-card">
+                <div class="icon-wrap" aria-hidden="true">
+                    <span class="magnifier"></span>
+                </div>
+                <div class="page-heading">
+                    <div class="top-tag">CAMPUS / LOST + FOUND</div>
+                    {% if page_mode == 'login' %}
+                        <h1>Welcome back</h1>
+                        <p>Log in to report an item or leave a comment.</p>
+                    {% elif page_mode == 'register' %}
+                        <h1>Create account</h1>
+                        <p>Join the community helping lost items find their way home.</p>
+                    {% elif page_mode == 'profile' %}
+                        <h1>My Profile</h1>
+                        <p>View and update your account details.</p>
+                    {% elif page_mode == 'item_edit' %}
+                        <h1>Edit report</h1>
+                        <p>Update the details of your lost item.</p>
+                    {% elif page_mode == 'comment_edit' %}
+                        <h1>Edit comment</h1>
+                        <p>Update your response to this report.</p>
+                    {% else %}
+                        <h1>Lost &amp; Found</h1>
+                        <p>Report a lost item and help return it to its owner.</p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="panel panel-description">
+                {% if page_mode == 'login' or page_mode == 'register' %}
+                    <div class="panel-label">
+                        {% if page_mode == 'login' %}ACCOUNT LOGIN{% else %}NEW ACCOUNT{% endif %}
+                    </div>
+                    <form method="post" class="simple-form">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        {{ form.as_p }}
+                        <button class="paper-button" type="submit">
+                            {% if page_mode == 'login' %}Log in{% else %}Create account{% endif %}
+                        </button>
+                    </form>
+                    {% if page_mode == 'login' %}
+                        <p class="helper-text">New here? <a href="{% url 'register' %}">Create an account</a>.</p>
+                    {% else %}
+                        <p class="helper-text">Already registered? <a href="{% url 'login' %}">Log in</a>.</p>
+                    {% endif %}
+                {% elif page_mode == 'profile' %}
+                    <div class="panel-label">ACCOUNT DETAILS</div>
+                    <form method="post" class="simple-form profile-form">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        <label>
+                            <span>Username</span>
+                            {{ form.username }}
+                            {{ form.username.errors }}
+                        </label>
+                        <label>
+                            <span>First name</span>
+                            {{ form.first_name }}
+                            {{ form.first_name.errors }}
+                        </label>
+                        <label>
+                            <span>Last name</span>
+                            {{ form.last_name }}
+                            {{ form.last_name.errors }}
+                        </label>
+                        <label>
+                            <span>Email address</span>
+                            {{ form.email }}
+                            {{ form.email.errors }}
+                        </label>
+                        <div class="form-actions">
+                            <button class="paper-button" type="submit">Save profile</button>
+                            <a class="cancel-button" href="{% url 'dashboard' %}">My Reports</a>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="panel-label">
+                        {% if page_mode == 'comment_edit' %}EDIT COMMENT{% else %}LOST ITEM DETAILS{% endif %}
+                    </div>
+                    <form method="post" enctype="multipart/form-data" class="lost-found-form">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        {% if page_mode == 'comment_edit' %}
+                            <label>
+                                <span>Your comment</span>
+                                {{ form.text }}
+                                {{ form.text.errors }}
+                            </label>
+                        {% else %}
+                            <div class="form-grid">
+                                <div class="panel panel-item">
+                                    <div class="panel-label">01 / ITEM</div>
+                                    <label>
+                                        <span>Item Name</span>
+                                        {{ form.item_name }}
+                                        {{ form.item_name.errors }}
+                                    </label>
+                                    <label>
+                                        <span>Category</span>
+                                        {{ form.category }}
+                                        {{ form.category.errors }}
+                                    </label>
+                                    <div id="other-category-field" {% if form.category.value != 'Other' %}hidden{% endif %}>
+                                        <label>
+                                            <span>Other category</span>
+                                            {{ form.other_category }}
+                                            {{ form.other_category.errors }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="panel panel-report">
+                                    <div class="panel-label">02 / REPORT</div>
+                                    <label>
+                                        <span>Date Lost</span>
+                                        {{ form.date_lost_found }}
+                                        {{ form.date_lost_found.errors }}
+                                    </label>
+                                    <label>
+                                        <span>Last Known Location</span>
+                                        {{ form.location }}
+                                        {{ form.location.errors }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="panel panel-description">
+                                <div class="panel-label">03 / DESCRIPTION</div>
+                                <label>
+                                    <span>Item Description</span>
+                                    {{ form.description }}
+                                    {{ form.description.errors }}
+                                </label>
+                                <p class="helper-text">Add details such as color, brand, size, or appearance.</p>
+                            </div>
+                            <div class="panel panel-report image-upload-panel">
+                                <div class="panel-label">04 / PHOTO</div>
+                                <label>
+                                    <span>Attach an item photo (optional)</span>
+                                    {{ form.image }}
+                                    {{ form.image.errors }}
+                                </label>
+                                {% if item.image %}
+                                    <p class="helper-text">A photo is already attached. Choose a new file to replace it.</p>
+                                {% else %}
+                                    <p class="helper-text">A clear photo can help someone recognize your item.</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-actions">
+                            <button class="paper-button" type="submit">
+                                {% if page_mode == 'item_edit' %}Save changes
+                                {% elif page_mode == 'comment_edit' %}Save comment
+                                {% else %}Publish lost item report{% endif %}
+                            </button>
+                            {% if item %}
+                                <a class="cancel-button" href="{% url 'item_detail' item.item_id %}">Cancel</a>
+                            {% else %}
+                                <a class="cancel-button" href="{% url 'item_list' %}">Cancel</a>
+                            {% endif %}
+                        </div>
+                    </form>
+                {% endif %}
+            </section>
+        </div>
+    </main>
+    <script>
+        const categorySelect = document.getElementById('id_category');
+        const otherCategoryField = document.getElementById('other-category-field');
+
+        if (categorySelect && otherCategoryField) {
+            categorySelect.addEventListener('change', function () {
+                otherCategoryField.hidden = categorySelect.value !== 'Other';
+            });
+        }
+    </script>
+</body>
+</html>

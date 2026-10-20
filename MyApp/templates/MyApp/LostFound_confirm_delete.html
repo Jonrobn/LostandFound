@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Delete</title>
+    <link rel="stylesheet" href="{% static 'MyApp/style.css' %}">
+</head>
+<body>
+    <main class="page">
+        <div class="form-shell">
+            <nav class="site-nav">
+                <a href="{% url 'item_list' %}">Browse Reports</a>
+                <a href="{% url 'dashboard' %}">My Reports</a>
+                <a href="{% url 'profile' %}">My Profile</a>
+            </nav>
+            <section class="header-card">
+                <div class="page-heading">
+                    <div class="top-tag">CAMPUS / LOST + FOUND</div>
+                    <h1>Confirm Delete</h1>
+                    <p>Please confirm before removing this item.</p>
+                </div>
+            </section>
+
+            <section class="panel panel-description delete-panel">
+                <div class="panel-label">DELETE ITEM</div>
+                <p>Are you sure you want to delete <strong>{{ item.item_name }}</strong>?</p>
+                <p>This action cannot be undone.</p>
+
+                <div class="delete-actions">
+                    <a class="cancel-button" href="{% url 'item_list' %}">Cancel</a>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button class="delete-button" type="submit">Delete</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
